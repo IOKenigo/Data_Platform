@@ -1,0 +1,53 @@
+version: '3.5'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports: 
+      - 80:80
+    networks:
+      - nugrad
+    volumes: 
+      - ./docker/config/nginx.conf:/etc/nginx/nginx.conf
+      #- ./docker/config/nginx/proxy-prodution.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/config/nginx/proxy-localhost.conf:/etc/nginx/conf.d/default.conf
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+  web:
+    image: wordpress
+    container_name: web
+    restart: always
+    networks:
+        - nugrad
+    volumes: 
+      - .www:/var/www/html
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+  db:
+    image: mariadb:10.5.8
+    restart: always
+    container_name: mariadb-web
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: db
+      MYSQL_USER: root
+    networks:
+      - nugrad
+    ports:
+      - 3306:3306
+    volumes: 
+      - ./docker/data/mysql:/var/lib/mysql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+networks:
+  nugrad:
